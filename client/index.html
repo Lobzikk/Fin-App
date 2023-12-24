@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fin App</title>
+    <style>
+        * {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        h1 {
+            text-align: center;
+            top: 100px;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <chart>
+        <canvas le width="700px" height="400px"></canvas>
+        <draw-canvas-data-set style='width: fit-content; height: fit-content; padding: 5px 15px; margin: 5px; position: absolute; left: 618px; top: 160px; opacity: 0; transition: all 0.5s ease 0s; color: rgb(255, 255, 255); background: rgb(3, 169, 244);'></draw-canvas-data-set>
+    </chart>
+    <script>
+function drawChart(dataX, dataY, c) {
+c = document.querySelector("canvas[le]")
+h = c.height
+w = c.width
+ctx = c.getContext('2d')
+// un = Math.round(Math.max(...dataX)/15)
+un = Math.round((Math.max(...dataX)-Math.min(...dataX))/10)
+ys = (w-40)/dataY.length
+dataT = []
+
+chartLine()
+digram()
+data()
+draw()
+pointes()
+function digram(){
+    y = 60
+    x = 1
+    ctx.strokeStyle = "#a7a7a7"
+    while(y < w){
+        ctx.beginPath()
+        ctx.moveTo(y,0)
+        ctx.lineTo(y,h-30)
+        ctx.stroke()
+        y += 30
+    }
+    while(x < h-30){
+        ctx.beginPath()
+        ctx.moveTo(60,x)
+        ctx.lineTo(w,x)
+        ctx.stroke()
+        x += 30
+    }
+}
+function chartLine() {
+    ctx.strokeStyle = "#000"
+    ctx.beginPath()
+    ctx.moveTo(60,0)
+    ctx.lineTo(60,h-30)
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.moveTo(w,h-30)
+    ctx.lineTo(60,h-30)
+    ctx.stroke()
+}
+
+function draw() {
+    ctx.save()
+    ctx.strokeStyle = "#03a9f4"
+    ctx.lineWidth = 3
+    ctx.beginPath()
+    // ctx.lineJoin = "round";
+    y = 60
+    height = h-30
+    line = 30
+    start = 30
+    // ctx.moveTo(60, h-30);
+    for(data of dataX){
+        max = Math.max(...dataX),
+        test = 30;
+        while (max > data){
+            max = max - 1
+            test += line/un
+        }
+        ctx.lineTo(30+y,test)
+        x = 30
+        y += ys
+    }
+    ctx.stroke()
+    ctx.restore()
+}
+function pointes() {
+    ctx.fillStyle = "#0b95d3"
+    y = 60
+    height = h-30
+    line = 30
+    start = 30
+    for (data of dataX) {
+        max = Math.max(...dataX),
+            test = 30;
+        while (max > data) {
+            max = max - 1
+            test += line / un
+        }
+        circle(30 + y, test)
+        dataT.push({ data : Math.round(test) + "," + Math.round(30 + y) +","+Math.round(data)})
+        x = 30
+        y += ys
+    }
+    ctx.stroke()
+}
+function data() {
+    y = 60
+    x = 30
+    n = Math.max(...dataX)
+    for(ydata of dataY){
+        ctx.font = "12px Arial";
+        ctx.fillText(ydata, y,h-10);
+        y += ys
+    }
+    while(x < h-30){
+        ctx.font = "11px Arial";
+        ctx.fillText(n, 0,x+5);
+        n = n -un
+        x += 30
+    }
+    
+}
+
+function circle(x,y) {
+    ctx.beginPath();
+    ctx.arc(x,y,4, 0, 2 * Math.PI);
+    ctx.fill()
+}
+
+
+c.onmousemove = function(e){
+    for(let data of dataT){
+        for (const [key, value] of Object.entries(data)) {
+            let dataG = value.split(","),
+            lx = e.layerX,
+            ly = e.layerY,
+            dx = dataG[1],
+            dy = dataG[0]
+                if (range(dx-10,Math.floor(dx)+10).includes(lx) && range(dy-10,Math.floor(dy)+10).includes(ly)) {
+                    $('draw-canvas-data-set').innerHTML = dataG[2]
+                    $('draw-canvas-data-set').style.opacity = "1"
+                    $('draw-canvas-data-set').style.left = e.clientX + "px"
+                    $('draw-canvas-data-set').style.top = e.clientY + "px"
+                } if (range(dx-10,Math.floor(dx)+10).includes(lx) && !range(dy-10,Math.floor(dy)+10).includes(ly)) {
+                    $('draw-canvas-data-set').style.opacity = "0"
+                }
+                lx = lx -1
+                dx = dx -1
+        }
+    }
+}
+
+function range(start, end) {
+    let range = [...Array(end + 1).keys()].filter(value => end >= value && start <= value );
+    return range
+}
+function $(object){
+    return document.querySelector(object);
+} }
+let objects = fetch("http://localhost:3000/transactions")
+/** @type{Array} */
+let transactions = JSON.parse(objects)
+let income = 0,
+spending = 0
+transactions.forEach()
+    </script>
+</body>
+</html>
